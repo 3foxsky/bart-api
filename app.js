@@ -4,6 +4,7 @@ const fileUpload = require('express-fileupload');
 
 const settings = require('./settings.json');
 const gallery = require('./gallery.js');
+const images = require('./images.js');
 
 const app = express();
 
@@ -13,6 +14,9 @@ app.use(fileUpload());
 
 //adds all /gallery routes
 gallery(app);
+
+//adds all /images routes
+images(app);
 
 
 app.listen(settings.port, () => {
