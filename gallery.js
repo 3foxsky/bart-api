@@ -28,7 +28,7 @@ module.exports = (app) => {
                 }
 
                 res.send({
-                    "path": galleryName,
+                    "path": encodeURIComponent(galleryName),
                     "name": galleryName
                 });
             })
@@ -114,7 +114,7 @@ module.exports = (app) => {
                                 }
                 
                                 responseObj.uploaded.push({
-                                    "path": image,
+                                    "path": encodeURIComponent(image),
                                     "fullpath": path.join(galleryName, image),
                                     "name": image.replace(/\.[^/.]+$/, ""),
                                     "modified": fileStats.mtime
@@ -190,7 +190,7 @@ module.exports = (app) => {
 
                 let galleryObj = {
                     "gallery": {
-                        "path": galleryName,
+                        "path": encodeURIComponent(galleryName),
                         "name": galleryName
                     },
                     "images": [ ]
@@ -240,7 +240,7 @@ function readGallery(galleryName, images) {
                 }
 
                 imagesArr.push({
-                    "path": image,
+                    "path": encodeURIComponent(image),
                     "fullpath": path.join(galleryName, image),
                     "name": image.replace(/\.[^/.]+$/, ""),
                     "modified": fileStats.mtime
@@ -291,9 +291,9 @@ function readGalleries(galleries) {
                             }
 
                             galleriesObj.galleries.push({
-                                "path": gallery,
+                                "path": encodeURIComponent(gallery),
                                 "image": {
-                                    "path": images[0],
+                                    "path": encodeURIComponent(images[0]),
                                     "fullpath": path.join(gallery, images[0]),
                                     "name": images[0].replace(/\.[^/.]+$/, ""),
                                     "modified": fileStats.mtime
@@ -307,7 +307,7 @@ function readGalleries(galleries) {
                         });
                     } else {
                         galleriesObj.galleries.push({
-                            "path": gallery,
+                            "path": encodeURIComponent(gallery),
                             "name": gallery
                         });
 
