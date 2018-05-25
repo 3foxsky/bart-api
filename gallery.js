@@ -234,7 +234,14 @@ function readGallery(galleryName, images) {
 
                 const isDirectory = fileStats.isDirectory();
 
-                if(isDirectory == true) {
+                if(image.indexOf('.') == -1 || image.split(".").length == 0) {
+                    foldersCount++;
+                    return;
+                }
+
+                const fileExt = image.split('.')[image.split('.').length - 1];
+
+                if(isDirectory == true || (fileExt != "jpg") && fileExt != "jpeg") {
                     foldersCount++;
                     return;
                 }
@@ -285,10 +292,24 @@ function readGalleries(galleries) {
                     }
 
                     if(images.length > 0) {
+                        let imagesOnlyArr = [];
+                        for(let i = 0; i < images.length; i++) {
+                            if(images[i].indexOf(".") != -1 && images[i].split(".").length != 0) {
+                                let fileExt = images[i].split(".")[images[i].split(".").length -1];
+                                if(fileExt == "jpg" || fileExt == "jpeg") {
+                                    imagesOnlyArr.push(images[i]);
+                                }
+                            }
+                        }
+
+                        images = imagesOnlyArr;
+
                         fs.lstat(path.join(galleryPath, images[0]), (err, fileStats) => {
                             if(err) {
                                 return rej();
                             }
+
+                            let correctImage;
 
                             galleriesObj.galleries.push({
                                 "path": encodeURIComponent(gallery),
