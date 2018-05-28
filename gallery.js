@@ -9,7 +9,7 @@ module.exports = (app) => {
         const galleryName = req.body.name;
 
         if(!galleryName || galleryName.length <= 0 || galleryName.indexOf("/") != -1) {
-            res.status(500).send("Chybne zadaný request - nevhodný obsah podľa schémy.");
+            res.status(500).send({status: "error"});
             return;
         }
 
@@ -17,13 +17,13 @@ module.exports = (app) => {
 
         fs.access(galleryPath, fs.constants.F_OK, (err) => {
             if(!err) {
-                res.status(409).send("Galéria so zadaným názvom už existuje");
+                res.status(409).send({status: "error"});
                 return;
             }
 
             fs.mkdir(galleryPath, (err) => {
                 if(err) {
-                    res.status(500).send('Nedefinovaná chyba');
+                    res.status(500).send({status: "error"});
                     return;
                 }
 
@@ -39,29 +39,58 @@ module.exports = (app) => {
         const galleryName = req.params.galleryName;
 
         if(!req.files) {
-            res.status(400).send("Chybný request - nenašiel sa súbor pre upload.");
+            res.status(400).send({status: "error"});
             return;
         }
 
         const galleryPath = path.join(__dirname, settings.galleryFolder, galleryName);
         fs.access(galleryPath, fs.constants.F_OK, (err) => {
             if(err) {
-                res.status(404).send('Galéria pre upload sa nenašla');
+                res.status(404).send({status: "error"});
                 return;
             }
 
             let files = [];
             for(let imagePack in req.files) {
-                for(let i = 0; i < req.files[imagePack].length; i++) {
-                    if(files.filter(f => f.name == req.files[imagePack][i].name).length <= 0
-                        && req.files[imagePack][i].mimetype == "image/jpeg") {
-                        files.push(req.files[imagePack][i]);
+                let pack = req.files[imagePack];
+                if(Array.isArray(pack)) {
+                    for(let i = 0; i < pack.length; i++) {
+                        files.push(pack[i]);
+                    }
+                } else {
+                    files.push(pack);
+                }
+            }
+
+            let allowedExts = [
+                "image/jpeg", 
+                "image/pjpeg"
+            ];
+
+            let newFiles = [];
+            for(let i = 0; i < files.length; i++) {
+                let fileName = files[i].name;
+                let toSkip = false;
+
+                for(let l = 0; l < newFiles.length; l++) {
+                    if(fileName == newFiles[l].name) {
+                        toSkip = true;
+                    }
+                }
+
+                if(toSkip == true) {
+                    continue;
+                } else {
+                    if(allowedExts.indexOf(files[i].mimetype) != -1) {
+                        newFiles.push(files[i]);
                     }
                 }
             }
 
+            files = newFiles;
+
             if(files.length == 0) {
-                res.status(400).send("Chybný request - nenašiel sa súbor pre upload (JPEG ONLY).");
+                res.status(400).send({status: "error"});
                 return;
             }
 
@@ -95,7 +124,7 @@ module.exports = (app) => {
 
                     if(filesUploadedNames.length + filesWithErrorCount == files.length) {
                         if(filesUploadedNames.length == 0) {
-                            res.status(500).send('Nedefinovaná chyba');
+                            res.status(500).send({status: "error"});
                             return;
                         }
 
@@ -109,7 +138,7 @@ module.exports = (app) => {
 
                             fs.lstat(imagePath, (err, fileStats) => {
                                 if(err) {
-                                    res.status(500).send('Nedefinovaná chyba');
+                                    res.status(500).send({status: "error"});
                                     return;
                                 }
                 
@@ -139,17 +168,17 @@ module.exports = (app) => {
 
         fs.access(fullPathToRemove, fs.constants.F_OK, (err) => {
             if(err) {
-                res.status(404).send('Zvolená galéria/obrázok neexistuje');
+                res.status(404).send({status: "error"});
                 return;
             }
 
             fse.remove(fullPathToRemove, (err) => {
                 if(err) {
-                    res.status(500).send('Nedefinovaná chyba');
+                    res.status(500).send({status: "error"});
                     return;
                 }
 
-                res.send('Galéria/obrázok bola úspešne vymazaná');
+                res.send({status: "ok"});
             });
         });
     });
@@ -158,7 +187,7 @@ module.exports = (app) => {
     app.get('/gallery', (req, res) => {
         fs.readdir(path.join(__dirname, settings.galleryFolder), (err, galleries) => {
             if(err) {
-                res.status(500).send('Nedefinovaná chyba');
+                res.status(500).send({status: "error"});
                 return;
             }
 
@@ -167,7 +196,7 @@ module.exports = (app) => {
                     res.send(galleriesObj);
                 })
                 .catch(() => {
-                    res.status(500).send('Nedefinovaná chyba');
+                    res.status(500).send({status: "error"});
                 });
         });
     });
@@ -178,13 +207,13 @@ module.exports = (app) => {
 
         fs.access(galleryPath, fs.constants.F_OK, (err) => {
             if(err) {
-                res.status(404).send("Zvolená galéria neexistuje");
+                res.status(404).send({status: "error"});
                 return;
             }
 
             fs.readdir(galleryPath, (err, images) => {
                 if(err) {
-                    res.status(500).send('Nedefinovaná chyba');
+                    res.status(500).send({status: "error"});
                     return;
                 }
 
@@ -208,7 +237,7 @@ module.exports = (app) => {
                         res.send(galleryObj);
                     })
                     .catch(() => {
-                        res.status(500).send('Nedefinovaná chyba');
+                        res.status(500).send({status: "error"});
                     });
 
             });
