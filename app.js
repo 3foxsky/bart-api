@@ -28,5 +28,6 @@ images(app);
 
 
 app.listen(settings.port, () => {
+    console.log("Stated");
     console.log("Express listening on :" + settings.port);
 });
