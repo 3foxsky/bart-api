@@ -26,6 +26,8 @@ gallery(app);
 //adds all /images routes
 images(app);
 
+console.log("Starting..");
+
 
 app.listen(settings.port, () => {
     console.log("Express listening on :" + settings.port);
